@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/addperson"
+        android:icon="@drawable/ic_person_add"
+        android:title="Agregar persona"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/loadjson"
+        android:icon="@drawable/ic_person_add"
+        android:title="Cargar JSON"
+        app:showAsAction="collapseActionView" />
+</menu>
