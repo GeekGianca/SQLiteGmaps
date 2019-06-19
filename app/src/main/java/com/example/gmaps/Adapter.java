@@ -17,6 +17,7 @@ class AdapterViewHolder extends RecyclerView.ViewHolder implements View.OnCreate
     TextView direccion;
     TextView latitud;
     TextView longitud;
+    TextView idpersona;
 
     public AdapterViewHolder(@NonNull View itemView) {
         super(itemView);
@@ -24,7 +25,7 @@ class AdapterViewHolder extends RecyclerView.ViewHolder implements View.OnCreate
         direccion = itemView.findViewById(R.id.direccion);
         latitud = itemView.findViewById(R.id.latitud);
         longitud = itemView.findViewById(R.id.longitud);
-
+        idpersona = itemView.findViewById(R.id.idpersona);
         itemView.setOnCreateContextMenuListener(this);
     }
 
@@ -60,6 +61,7 @@ public class Adapter extends RecyclerView.Adapter<AdapterViewHolder>{
         holder.nombre.setText(personas.get(position).getNombre());
         holder.latitud.setText(personas.get(position).getLat()+"");
         holder.longitud.setText(personas.get(position).getLng()+"");
+        holder.idpersona.setText(personas.get(position).getId()+"");
     }
 
     @Override

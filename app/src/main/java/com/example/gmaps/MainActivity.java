@@ -35,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
     RecyclerView listperson;
     Adapter adaptador;
     List<Person> personaList;
+    String idpersona;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,7 +69,8 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, "Eliminado correctamente", Toast.LENGTH_SHORT).show();
             cargar();
         } else if (item.getTitle().equals("Actualizar")) {
-            crearNuevaPersona();
+            crearNuevaPersona(true);
+            idpersona = personaList.get(item.getOrder()).getId() + "";
             nombre.setText(personaList.get(item.getOrder()).getNombre());
             direccion.setText(personaList.get(item.getOrder()).getDireccion());
             latitud.setText(personaList.get(item.getOrder()).getLat() + "");
@@ -100,7 +102,7 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
         switch (id) {
             case R.id.addperson:
-                crearNuevaPersona();
+                crearNuevaPersona(false);
                 break;
             case R.id.loadjson:
                 loadJSONFromAsset();
@@ -110,7 +112,7 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void crearNuevaPersona() {
+    private void crearNuevaPersona(final boolean isUpdate) {
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
         alertDialog.setTitle("Agregar Nueva Persona");
         LayoutInflater inflater = this.getLayoutInflater();
@@ -120,6 +122,11 @@ public class MainActivity extends AppCompatActivity {
         latitud = view.findViewById(R.id.latitudtext);
         longitud = view.findViewById(R.id.longitudtext);
         agregarbtn = view.findViewById(R.id.agregarbtn);
+        if (isUpdate) {
+            agregarbtn.setText("Actualizar");
+        } else {
+            agregarbtn.setText("Agregar");
+        }
         cancelarbtn = view.findViewById(R.id.cancelarbtn);
         agregarbtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -129,10 +136,17 @@ public class MainActivity extends AppCompatActivity {
                 persona.setDireccion(direccion.getText().toString());
                 persona.setLat(Float.parseFloat(latitud.getText().toString()));
                 persona.setLng(Float.parseFloat(longitud.getText().toString()));
-                dbSqlite.addPerson(persona);
+                if (isUpdate) {
+                    persona.setId(Integer.parseInt(idpersona));
+                    idpersona = null;
+                    dbSqlite.updatePerson(persona);
+                    Toast.makeText(MainActivity.this, "Actualizar", Toast.LENGTH_SHORT).show();
+                } else {
+                    dbSqlite.addPerson(persona);
+                    Toast.makeText(MainActivity.this, "Agregando", Toast.LENGTH_SHORT).show();
+                }
                 cargar();
                 dialog.dismiss();
-                Toast.makeText(MainActivity.this, "Agregando....", Toast.LENGTH_SHORT).show();
             }
         });
         cancelarbtn.setOnClickListener(new View.OnClickListener() {
