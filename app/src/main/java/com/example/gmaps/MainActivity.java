@@ -8,6 +8,8 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -17,6 +19,10 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -36,6 +42,7 @@ public class MainActivity extends AppCompatActivity {
     Adapter adaptador;
     List<Person> personaList;
     String idpersona;
+    ProgressDialog pdialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,27 +80,63 @@ public class MainActivity extends AppCompatActivity {
             idpersona = personaList.get(item.getOrder()).getId() + "";
             nombre.setText(personaList.get(item.getOrder()).getNombre());
             direccion.setText(personaList.get(item.getOrder()).getDireccion());
-            latitud.setText(personaList.get(item.getOrder()).getLat() + "");
-            longitud.setText(personaList.get(item.getOrder()).getLng() + "");
+            latitud.setText(String.valueOf(personaList.get(item.getOrder()).getLat()));
+            longitud.setText(String.valueOf(personaList.get(item.getOrder()).getLng()));
+        } else if (item.getTitle().equals("Mostrar en mapa")) {
+            Intent intent = new Intent(this, MapsActivity.class);
+            intent.putExtra("latitud", personaList.get(item.getOrder()).getLat());
+            intent.putExtra("longitud", personaList.get(item.getOrder()).getLng());
+            /*intent.putExtra("latitud",  8.7511552);
+            intent.putExtra("longitud", -75.8647943);*/
+            intent.putExtra("name", personaList.get(item.getOrder()).getNombre());
+            startActivity(intent);
         }
         return super.onContextItemSelected(item);
     }
 
     public String loadJSONFromAsset() {
+        pdialog = new ProgressDialog(this);
+        pdialog.setTitle("Cargando JSON");
+        pdialog.show();
         String json = null;
         try {
-            InputStream is = this.getAssets().open("consultajson.json");
+            Person p;
+            InputStream is = this.getAssets().open("json.json");
             int size = is.available();
             byte[] buffer = new byte[size];
             is.read(buffer);
             is.close();
             json = new String(buffer, "UTF-8");
             Log.v("MainActivity", "Load json ok");
+            JSONObject jobject = new JSONObject(json);
+            JSONArray jarray = jobject.getJSONArray("results");
+            for (int i = 0; i < jarray.length(); i++) {
+                try {
+                    p = new Person();
+                    JSONObject jobj = jarray.getJSONObject(i);
+                    p.setNombre(jobj.getString("name"));
+                    p.setDireccion(jobj.getString("formatted_address"));
+                    JSONObject objjson = jobj.getJSONObject("geometry");
+                    JSONObject objlatlng = objjson.getJSONObject("location");
+                    p.setLng(Double.parseDouble(objlatlng.getString("lng")));
+                    p.setLat(Double.parseDouble(objlatlng.getString("lat")));
+                    dbSqlite.addPerson(p);
+                    Log.d("Object Class", p.toString());
+                    Thread.sleep(150);
+                    cargar();
+                } catch (Exception e) {
+                    Log.e("Error", "Load JSON", e);
+                }
+            }
+            Log.d("JSON", jobject.toString());
         } catch (IOException ex) {
             Log.v("MainActivity", "Error: " + ex.getMessage());
             ex.printStackTrace();
             return null;
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
+        pdialog.dismiss();
         return json;
     }
 
@@ -107,6 +150,10 @@ public class MainActivity extends AppCompatActivity {
             case R.id.loadjson:
                 loadJSONFromAsset();
                 Toast.makeText(this, "Cargar", Toast.LENGTH_SHORT).show();
+                break;
+            case R.id.deleteall:
+                dbSqlite.deletePerson();
+                cargar();
                 break;
         }
         return super.onOptionsItemSelected(item);

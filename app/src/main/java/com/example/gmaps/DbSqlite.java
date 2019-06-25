@@ -76,6 +76,12 @@ public class DbSqlite extends SQLiteOpenHelper {
         db.close();
     }
 
+    public void deletePerson() {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete(TABLA_NOMBRE, null, null);
+        db.close();
+    }
+
     public Person getPerson(int id) {
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.query(TABLA_NOMBRE, new String[]{KEY_ID, KEY_NOMBRE, KEY_LAT}, KEY_ID + "=?",

@@ -4,13 +4,13 @@ public class Person {
     private int id;
     private String nombre;
     private String direccion;
-    private float lat;
-    private float lng;
+    private double lat;
+    private double lng;
 
     public Person() {
     }
 
-    public Person(int id, String nombre, String direccion, float lat, float lng) {
+    public Person(int id, String nombre, String direccion, double lat, double lng) {
         this.id = id;
         this.nombre = nombre;
         this.direccion = direccion;
@@ -42,19 +42,19 @@ public class Person {
         this.direccion = direccion;
     }
 
-    public float getLat() {
+    public double getLat() {
         return lat;
     }
 
-    public void setLat(float lat) {
+    public void setLat(double lat) {
         this.lat = lat;
     }
 
-    public float getLng() {
+    public double getLng() {
         return lng;
     }
 
-    public void setLng(float lng) {
+    public void setLng(double lng) {
         this.lng = lng;
     }
 
